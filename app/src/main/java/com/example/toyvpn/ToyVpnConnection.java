@@ -20,10 +20,7 @@ import java.nio.channels.DatagramChannel;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 public class ToyVpnConnection implements Runnable {
-    /**
-     * Callback interface to let the {@link ToyVpnService} know about new connections
-     * and update the foreground notification with connection status.
-     */
+
     public interface OnEstablishListener {
         void onEstablish(ParcelFileDescriptor tunInterface);
     }
@@ -60,11 +57,11 @@ public class ToyVpnConnection implements Runnable {
     private PendingIntent mConfigureIntent;
     private OnEstablishListener mOnEstablishListener;
     // Proxy settings
-    private String mProxyHostName;
-    private int mProxyHostPort;
+//    private String mProxyHostName;
+//    private int mProxyHostPort;
     // Allowed/Disallowed packages for VPN usage
     private final boolean mAllow;
-    private final Set<String> mPackages;
+//    private final Set<String> mPackages;
     public ToyVpnConnection(final VpnService service, final int connectionId,
                             final String serverName, final int serverPort, final byte[] sharedSecret,
                             final String proxyHostName, final int proxyHostPort, boolean allow,
@@ -74,15 +71,15 @@ public class ToyVpnConnection implements Runnable {
         mServerName = serverName;
         mServerPort= serverPort;
         mSharedSecret = sharedSecret;
-        if (!TextUtils.isEmpty(proxyHostName)) {
-            mProxyHostName = proxyHostName;
-        }
-        if (proxyHostPort > 0) {
-            // The port value is always an integer due to the configured inputType.
-            mProxyHostPort = proxyHostPort;
-        }
+//        if (!TextUtils.isEmpty(proxyHostName)) {
+//            mProxyHostName = proxyHostName;
+//        }
+//        if (proxyHostPort > 0) {
+//             The port value is always an integer due to the configured inputType.
+//            mProxyHostPort = proxyHostPort;
+//        }
         mAllow = allow;
-        mPackages = packages;
+//        mPackages = packages;
     }
     /**
      * Optionally, set an intent to configure the VPN. This is {@code null} by default.
@@ -103,11 +100,8 @@ public class ToyVpnConnection implements Runnable {
             // In this demo, all we need to know is the server address.
             final SocketAddress serverAddress = new InetSocketAddress(mServerName, mServerPort);
             // We try to create the tunnel several times.
-            // TODO: The better way is to work with ConnectivityManager, trying only when the
-            // network is available.
-            // Here we just use a counter to keep things simple.
+            // TODO: The better way is to work with ConnectivityManager, trying only when the network is available.
             for (int attempt = 0; attempt < 10; ++attempt) {
-                // Reset the counter if we were connected.
                 if (run(serverAddress)) {
                     attempt = 0;
                 }
@@ -167,6 +161,7 @@ public class ToyVpnConnection implements Runnable {
                 // Read the incoming packet from the tunnel.
                 length = tunnel.read(packet);
                 if (length > 0) {
+                    // TODO: send a message starting with zero which will mean connect to local http server on laptop
                     // Ignore control messages, which start with zero.
                     if (packet.get(0) != 0) {
                         // Write the incoming packet to the output stream.
@@ -270,23 +265,23 @@ public class ToyVpnConnection implements Runnable {
         }
         // Create a new interface using the builder and save the parameters.
         final ParcelFileDescriptor vpnInterface;
-        for (String packageName : mPackages) {
-            try {
-                if (mAllow) {
-                    builder.addAllowedApplication(packageName);
-                } else {
-                    builder.addDisallowedApplication(packageName);
-                }
-            } catch (PackageManager.NameNotFoundException e){
-                Log.w(getTag(), "Package not available: " + packageName, e);
-            }
-        }
+//        for (String packageName : mPackages) {
+//            try {
+//                if (mAllow) {
+//                    builder.addAllowedApplication(packageName);
+//                } else {
+//                    builder.addDisallowedApplication(packageName);
+//                }
+//            } catch (PackageManager.NameNotFoundException e){
+//                Log.w(getTag(), "Package not available: " + packageName, e);
+//            }
+//        }
         builder.setSession(mServerName).setConfigureIntent(mConfigureIntent);
-        if (!TextUtils.isEmpty(mProxyHostName)) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                builder.setHttpProxy(ProxyInfo.buildDirectProxy(mProxyHostName, mProxyHostPort));
-            }
-        }
+//        if (!TextUtils.isEmpty(mProxyHostName)) {
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+//                builder.setHttpProxy(ProxyInfo.buildDirectProxy(mProxyHostName, mProxyHostPort));
+//            }
+//        }
         synchronized (mService) {
             vpnInterface = builder.establish();
             if (mOnEstablishListener != null) {

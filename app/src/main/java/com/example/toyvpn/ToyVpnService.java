@@ -87,15 +87,15 @@ public class ToyVpnService extends VpnService implements Handler.Callback {
         final SharedPreferences prefs = getSharedPreferences(ToyVpnClient.Prefs.NAME, MODE_PRIVATE);
         final String server = prefs.getString(ToyVpnClient.Prefs.SERVER_ADDRESS, "");
         final byte[] secret = prefs.getString(ToyVpnClient.Prefs.SHARED_SECRET, "").getBytes();
-        final boolean allow = prefs.getBoolean(ToyVpnClient.Prefs.ALLOW, true);
-        final Set<String> packages =
-                prefs.getStringSet(ToyVpnClient.Prefs.PACKAGES, Collections.emptySet());
+//        final boolean allow = prefs.getBoolean(ToyVpnClient.Prefs.ALLOW, true);
+//        final Set<String> packages =
+//                prefs.getStringSet(ToyVpnClient.Prefs.PACKAGES, Collections.emptySet());
         final int port = prefs.getInt(ToyVpnClient.Prefs.SERVER_PORT, 0);
-        final String proxyHost = prefs.getString(ToyVpnClient.Prefs.PROXY_HOSTNAME, "");
-        final int proxyPort = prefs.getInt(ToyVpnClient.Prefs.PROXY_PORT, 0);
+//        final String proxyHost = prefs.getString(ToyVpnClient.Prefs.PROXY_HOSTNAME, "");
+//        final int proxyPort = prefs.getInt(ToyVpnClient.Prefs.PROXY_PORT, 0);
         startConnection(new ToyVpnConnection(
                 this, mNextConnectionId.getAndIncrement(), server, port, secret,
-                proxyHost, proxyPort, allow, packages));
+                null, -1, true, null));
     }
     private void startConnection(final ToyVpnConnection connection) {
         // Replace any existing connecting thread with the  new one.
